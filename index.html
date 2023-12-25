@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="utf-8">
+    <title>shobo v1.8</title>
+    <meta name="description" content="shobo">
+    <link rel="icon" id="fav" href="">
+</head>
+
+<body>
+    <div id="main">
+        <table><tr><td><h1>shobo　</h1></td>
+        <td><p><a href="https://silversecond.com/WolfRPGEditor/" target="_blank">ウディタ</a>上でショボい音楽を演奏するヤツです。
+            <br>ぽり０６５５さんが<a href="http://senobishiten.blog.shinobi.jp/game/se%E3%82%92%E5%A5%8F%E3%81%A7%E3%82%8B/" target="_blank">ブログ</a>で紹介していたものを参考に作成しました。</p>
+        </td></tr>
+        </table>
+        <div id="button">
+        <table id="btn"><tr>
+        <td onclick="buttons(this)">About</td>
+        <td onclick="buttons(this)">Setting</td>
+        <td onclick="buttons(this)">Commands</td>
+        <td onclick="buttons(this)">Tools</td>
+        </tr></table></div>
+        <div id="disc" style='user-select:none;'></div>
+    </div>
+</body>
+
+<style>
+/*::selection{
+    background-color: #50A0A0;
+    color: #F0F0F0;
+}*/
+body{
+    width:100vw;
+    margin:0;
+    padding:0;
+    color:#505050;
+    background-color:#F0F0F0;
+    font-size:16px;
+    overflow-x:hidden;
+    user-select:none;
+}
+a:link, a:visited{
+    color:#000000;
+    text-decoration:none;
+}
+a:hover{
+    color:#A0A0A0;
+    cursor:pointer;
+}
+#main{
+    margin:30px;
+    padding:0 30px;
+    top:0;
+    width:calc(100vw - 120px);
+}
+#btn,#btn2{
+    width:100%;
+    text-align:center;
+    table-layout:fixed;
+    color:#F0F0F0;
+    background-color:#505050;
+    border:0px none;
+}
+#btn td:hover,#btn2 td:hover{
+    background-color:#D0D0D0;
+}
+input,textarea,#presetSelect{
+    border:0px none;
+    background-color:#FFFFFF;
+    width:5em;
+    height:1.5em;
+    text-align:center;
+    font-size:16px;
+}
+textarea{
+    resize: none;
+    text-align:left;
+}
+</style>
+
+<script>
+const PRESET={
+    "Square 50%":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15],
+    "Square 25%":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,15,15,15,15,15,15,15,15],
+    "Square 12.5%":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,15,15,15,15],
+    "Saw":[0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10,11,11,12,12,13,13,14,14,15,15],
+    "Triangle":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0],
+    "Sine":[9,11,12,13,14,14,15,15,15,15,14,14,13,12,11,9,7,5,3,2,1,1,0,0,0,0,1,1,2,3,5,7],
+    "Frog1":[0,2,4,6,8,10,9,10,9,10,0,10,0,7,5,6,7,8,9,10,10,9,7,3,0,1,4,6,8,9,10,10],
+    "Frog2":[0,0,4,4,9,9,14,14,15,15,15,15,15,15,12,12,9,9,4,4,4,6,9,12,15,15,14,14,12,9,5,2]
+};
+
+const CMD1=[//定義コマンド一覧 [コマンド,例,説明]
+["”#”で始まるコマンドです。次の”#”まで読み込まれます。",0,0],
+["#oto",
+"#oto\nhoge/foo.ogg:12 @0\n<HERE>piyo.ogg @1\nhoge/left.ogg|hoge.right.ogg:33 @2\n<@0:0-23@1:24-35> @3",
+"音色ファイルの設定です。<br>「Data/」以下で場所を指定し、1ファイルごとに改行してください。<br>"+
+"1行目から順に@0,@1…と番号が割り当てられます。@14まで指定できます。<br><br>"+
+"コロンの後ろはチューニングの設定です。数字が1大きくなると、音が半音低くなります。<br>"+
+"(ルートキーが半音高くなります。)<br><br>"+
+"「&lt;HERE&gt;」の文字列は楽譜ファイルの場所に変換されます。(相対パスでファイルを指定できます。)<br><br>"+
+"パンポット機能を使うには、2つの対応したファイルを「|」で区切って指定してください。<br>"+
+"2つの音を同時に慣らすことで実現しているので、左だけ鳴る音と右だけのものが必要になります。<br><br>"+
+"「&lt;&gt;」を使って音色セットを組むこともできます。音色の番号と対応する音階の範囲を指定してください。<br>"+
+"音階は0をドとし、1増えると半音ずつ高くなっていきます。(0:ド、1:ド♯、2:レ…11:シ、12:ド…)<br>"+
+"&lt;(音色番号1):(1の下限音階)-(1の上限音階)(音色番号2):…&gt;"],
+["#ch&lt;num&gt;",
+"#ch1\nV85 w7 l1 / @0 o1 cdefgab&gt;c\n#ch2…",
+"チャンネルごとの楽譜データの指定です。<br>"+
+"&lt;num&gt;には1から順にチャンネル番号を入れてください。<br>"+
+"チャンネルの最大値はCDBのデータ数で決まります。"
+],
+["bar=&lt;num&gt;",
+"bar=8",
+"ノートが何分音符なのかを設定します。<br>このコマンドがあるとおおよそのBPMを計算します。<br>"+
+"例の場合、1ブロックが8分音符として扱われます。<br>"+
+"書いていなくても問題なく演奏されます。"
+]
+];
+const CMD2=[//演奏コマンド一覧 [コマンド,例,説明]
+["演奏中に使えるコマンドです。<br>&lt;num&gt;には数字を、&lt;str&gt;には文字列を入れてください。",0,0],
+["c,d,e,f,g,a,b,r,h &lt;num&gt;","c2d1e2f4g3a3b2r8",
+"音符です。rは休符です。<br>hは現在のオクターブの中でランダムに音を出します。<br>数字は”長さ”を指定します。<br><br>"+
+"半音の上げ下げは「c+,d+,f+,g+,a+」のみ対応していて、<br>"+
+"「#」とか「-」とかは使えません。「e+」とかも読み込まれません。<br><br>"+
+"”長さ”は全音符を1とした時の○分音符で指定するの<b>ではなく</b>、<br>"+
+"<b>ノートの長さ</b>をそのまま指定してください。<br>つまり、数字が大きいほど長く音が鳴ります。<br>"+
+"長さを四角で書くと、c1は█、c2は██みたいなイメージです。(?)"
+],
+["l&lt;num&gt;","l2 cdefg",
+"音符や休符の長さを省略したときのデフォルトのブロック数を設定します。<br>"+
+"小文字の「L」です。<br>例の場合、l2以降の音符の長さは2として扱われます。<br>"+
+"(c2d2e2f2g2と書いた時と同じ演奏をする)"
+],
+["o&lt;num&gt;","o1cde o2cde",
+"音符のオクターブを設定します。0以上が指定できます。<br>"+
+"例の場合、o2の後はo1の後より1オクターブ高い音で鳴ります。"
+],
+["&gt;,&lt;","cde > cde",
+"次の音符のオクターブを1つ上げたり下げたりします。<br>「&gt;」で上げて、「&lt;」で下げます。<br><br>"+
+"なお、この2つの機能を入れ替えるコマンドはありません。<b>固定です。</b>"
+],
+["/","cd/efg",
+"曲のループ開始地点です。<br>チャンネルの演奏が終わったときにこの場所に戻ります。<br>"+
+"例の場合、cdefgと演奏された後、efgefg…と演奏されます。<br>"+
+"このコマンドがない場合、ループされません。<br>"+
+"<br>このコマンドは1つのチャンネルにつき<b>1回だけ</b>使用できます。<br><br>"+
+"なお、ループ開始位置に戻っても<br>コマンド時点の音量や音色の設定は<b>引き継がれません</b>。"
+],
+["@&lt;num&gt;","@0cde @1cde",
+"鳴らす音色を設定します。<br>このコマンド以降、「#oto」コマンドで指定した音色で演奏されます。"
+],
+["q&lt;num&gt;","q1cde",
+"音を鳴らす長さを指定したフレーム数分だけ短くします。<br>"+
+"ノートの長さ自体は変わりませんが、音の鳴る時間が短くなります。<br><br>"+
+"「w」コマンドで設定した値より大きくはできません。"
+],
+["V&lt;num&gt;","V85",
+"曲全体の音量を設定します。大文字の「v」です。<br>"+
+"基本的に1～100の値にしてください。"
+],
+["v&lt;num&gt;","v12",
+"チャンネルの音量を設定します。小文字の「V」です。<br>0～16で指定してください。"
+],
+["w&lt;num&gt;","w5",
+"テンポを設定します。<br>1ブロックが何フレーム分かを指定します。<br>"+
+"このフレーム数ごとに各コマンドが反映されます。"
+],
+["%&lt;num&gt;","w5 %3",
+"テンポの微調整をします。-1～1以外の数字が指定可能です。<br>"+
+"2以上を指定すると指定したブロック数ごとに1フレーム短くなります。<br>"+
+"-2以下を指定すると指定したブロック数ごとに1フレーム長くなります。<br>"+
+"例の場合、処理フレームが「5 5 4 5 5 4…」となります。<br>"+
+"「%-3」としていた場合、処理フレームは「5 5 6 5 5 6…」となります。"
+],
+["p&lt;num&gt;","p6",
+"パンポットの設定をします。0～8の9段階で指定してください。4が中央です。<br>"+
+"値が大きいと「#oto」コマンドで指定した右側のファイルの音量が大きくなります。<br>"+
+"「#oto」コマンドでファイルが1つしか指定されていない場合や、<br>"+
+"「x」コマンドが有効になっているときは<br>このコマンドは無効になります。"
+],
+["x&lt;num&gt;","x1",
+"チャンネルでの演奏割り当ての設定です。<br>0:SE(デフォルト)<br>1:BGM<br>2:BGS<br><br>"+
+"BGMやBGSは2つ以上のチャンネルで同時に割り当てると正しく演奏されなくなります。<br><br>"+
+"ウディタの仕様上、SEは再生後に周波数をいじることが出来ません。<br>"+
+"ピッチベンドやモジュレーション(ビブラート)を<br>"+
+"一時的にBGMやBGSとして音を鳴らすことで実現するためのコマンドです。<br><br>"+
+"コマンドの仕様<br>"+
+"・BGMとBGSに同じファイルを読み込んで鳴らす<br>　→片方しか鳴りません。<br>"+
+"・BGMやBGSに割り当てたチャンネルの音の鳴り方がおかしい。<br>　→音声ファイルにループポイントを設定してください。"
+],
+["D&lt;num&gt;","D1",
+"デチューンの設定です。<br>このコマンド以降、鳴らす音の周波数[%]を指定した数だけずらします。<br>"+
+"なお、同じ値を設定していても、鳴らす音が低ければ低いほど音のズレが大きくなります。"
+],
+["(&lt;num&gt;)[&lt;str&gt;]&lt;num&gt;","(1)[cde]4 abc (1)1",
+"区間ループです。()内の数字には1～14が使用できます。<br>"+
+"[]内に繰り返す演奏、後ろに繰り返す回数を書いてください。<br><br>"+
+"また、記録された区間ループは番号で呼び出すことができます。<br>"+
+"この場合は[]部分を省略し、繰り返す回数を後ろにつけてください。<br><br>"+
+"例の場合、cde cde cde cde abc cdeと演奏されます。"
+],
+["!","cde!abcdefg test text.",
+"読み込みを終了します。<br>このコマンド以降何が書かれていても読み込みません。"
+]
+];
+const CMD3=[//特殊コマンド一覧
+["「x」コマンドでBGMやBGSに<br>割り当てられたチャンネルでのみ使えるコマンドです。",0,0],
+["B&lt;num1&gt;:&lt;num2&gt;:&lt;num3&gt;","B6:4:-3",
+"ピッチベンドの設定です。<br>num1に変化開始までのブロック数、<br>num2に変化にかかる時間(ブロック数)、<br>"+
+"num3に変化するピッチ(音階)を指定してください。<br>"+
+"例の場合、このコマンドが指定された6ブロック後に4ブロックかけてピッチが3つ下がります。"
+],
+["m&lt;num1&gt;:&lt;num2&gt;:&lt;num3&gt;","m4:2:4",
+"モジュレーション(ビブラート)の設定です。<br>num1に振動開始までのブロック数、<br>num2に振動周期(フレーム数)<br>"+
+"num3に振幅(±%)を指定してください。<br><br>"+
+"なお、「D」コマンドと同様に周波数[%]の数字を動かすので、<br>"+
+"同じ振幅でも、音が低いほど振動の幅が大きくなります。"
+]
+];
+const ABOUT="<h4>概要</h4>"+
+"<ul>"+
+"<li>「shobo」の使い方などをメモ程度にまとめました。</li>"+
+"<li>ウディタのSEチャンネル機能を使って演奏させるシステムです。</li>"+
+"<li>曲データは<b>音色ファイル(oggなど)</b>と<b>楽譜ファイル(テキストファイル)</b>で作ります。</li>"+
+"<li>使うことによる大きな利点はありません。ただの<b>ロマン</b>です。</li>"+
+"<li>システムの流用、改変などご自由にどうぞ。</li>"+
+"</ul>"+
+"<p style='font-size:12px'>"+
+"更新履歴<br>v1.0　とりあえずの完成。<br>"+
+"v1.1　テンポずれが起きないように「MML」から「それっぽい変な形式」に変更。<br>"+
+"v1.2　(とても重い)途中再生機能追加。コモン数を減らして流用しやすく。<br>"+
+"v1.3　パンポット機能もどき追加。<br>　　　ウディタの仕様変更(周波数200%以上が鳴らない)に対応するため音色セット機能追加。<br>"+
+"v1.4　音量フェードもどき追加。<br>"+
+"v1.5　BGM、BGSでの演奏、特殊コマンドの追加。<br>"+
+"v1.6　最大読込音色数を20から15に変更。<br>　　　ファイル直接指定、デチューン機能の追加。一部記述方法の変更。<br>"+
+"v1.7　「w」コマンドで設定するフレーム数と実際のテンポがずれていたのを修正。<br>　　　音色セットのピッチ変更対応。<br>"+
+"<b>v1.8</b>　「%」コマンドの指定範囲を拡張。音量フェードもどきの処理変更。<br>　　　音色ファイルの相対パス指定もどき追加。"+
+"</p>";
+const HOWTO="<p>"+
+"<h4>shoboを使う</h4>"+
+"ここから導入セットをダウンロードしてください。<br>"+
+"「shobo.common」(3コモン使用)をコモンイベントに、<br>「shobo.dbtypeset」を可変データベースに<br>"+
+"それぞれ好きな位置に読み込んでください。<br>可変データベースのデータ数は使うチャンネル数+1にしてください。<br>"+
+"(楽譜の#chコマンドで指定する数の最大の数が2の時はデータ数を3にする)"+
+"<h4>音楽リストの作成</h4>ゲーム中で使う音楽を1行1ファイルでリストにするとIDで音楽を指定できるようになります。<br>下の感じで書いてください。「#shobo」と「#」で囲まれた部分を読み込みます。<br>　　　#shobo<br>　　　foo/hoge.txt<br>　　　foo/fuga.txt:song2<br>　　　#<br>リストが書かれたテキストファイルを「shobo」コモンのinitで指定してください。"+
+"<h4>各コモンの使い方</h4>それぞれｺﾓﾝｾﾙﾌ0(mode)に値を入れることで処理内容を切り替えます。<br><br>"+
+"「<b>shobo</b>」音楽の再生、停止、データの初期化などをします。<br>基本的に呼び出して使うのはこのコモンだけでいいです。<ul><li>[-1]:init<br>初期化をします。<br>ゲーム中で再生する音楽の楽譜のリストファイル名をdataに指定してください。</li><li>[0]:stop<br>演奏を停止します。</li><li>[1以上]:再生<br>dataに楽譜ファイルを指定した場合はその曲を、<br>ファイルが指定されていない(存在しない)場合は<br>modeで指定されたIDの音楽を再生します。</li></ul>"+
+"「<b>├play</b>」音楽の演奏処理をします。<br>「shobo」コモンで音楽を再生すると勝手に並列処理になります。<ul><li>[-1]:pause<br>演奏を一時停止します。<br>続きから再生するにはこのコモンをmodeに「1」を代入した状態で呼び出してください。</li><li>[0]:init<br>初期化処理です。</li><li>[1]:play<br>演奏処理です。並列で動きます。</li></ul>"+
+"「<b>├sound</b>」演奏するのに必要な計算や、テンポなどの音楽の設定をします。<br>modeの選択欄にある2つの「[]」はそれぞれ<br>num1とnum2に入力する数値の意味を表しています。<br>(空欄の時は意味のない変数)<ul><li>[-1以下]:計算系<br>各種計算です。</li><li>[0]:mute<br>num1に対象のチャンネル<br>num2にチャンネルの状態(0:ミュート 1:ミュート解除 -1:ミュート切替)を入力してください。</li><li>[1]:pitch<br>曲全体のピッチを変更します。num2にピッチの状態(1で半音上がる)を入力してください。</li><li>[2]:wait<br>テンポの設定です。「w」コマンドと同様に設定してください。</li><li>[3]:fluctuation<br>テンポの微調整です。「%」コマンドと同様に設定してください。</li><li>[4]:from<br>(とても重い)途中再生機能です<br>num1に再生する音楽のID、num2に再生を始めるブロック数を入力してください。</li><li>[6]:fade<br>音量フェードもどきです。num1に処理にかかるブロック数、num2に目標音量を入力してください。<br>num1に負の数を入れた場合、|num1|ブロック数ごとに音量を1ずつ動かします。<br>(num1に-2を入れたとき、2ブロックごとに音量が1動く)</li></ul>"+
+"</p>";
+const CMNDS="<p>"+
+"<b>コマンドリスト</b><br>"+
+"演奏中のコマンドはすべて半角文字で記述してください。<br>"+
+"また、大文字・小文字も区別するので間違えないようにしてください。<br>"+
+"説明文中の「ブロック」は音符休符の長さの単位のことです。"+
+"<div style='display:flex;'>"+
+    "<div style='width:40%'><table id='btn2' style='width:100%;height:1em;font-size:14px;'><tr>"+
+    `<td onclick='commands(${CMD1})'>システムコマンド</td>`+
+    `<td onclick='commands(${CMD2})'>基本コマンド</td>`+
+    `<td onclick='commands(${CMD3})'>特殊コマンド</td>`+
+    "</tr></table>"+"<br><div id='slct'></div></div>"+
+    "<div style='width:60%;padding:0 30px 0'>例<br><textarea id='example' style='width:100%;height:4em;' disabled></textarea>"+
+    "<div id='disc2' style='font-size:14px;'></div></div>"
+"</div></p>";
+const TOOLS="<p>"+
+"<b>BPM計算</b><br>60FPSの場合のBPMをだいたいで計算します。"+
+"(30FPSの場合のBPMは半分になる)<br>"+
+"「w」「%」「bar」はぞれぞれコマンドと同じように数字を指定してください。"+
+"<table style='text-align:center;'><tr><td>w</td><td>%</td><td>bar</td><td></td><td>BPM</td></tr>"+
+"<tr><td><input type='number' id='wait'value='6' step='1' min='1' onchange='setrange(1)'></td>"+
+"<td><input type='number' id='fluc' value='0' step='1' onchange='setrange(-128)'></td>"+
+"<td><input type='number' id='nbar' value='16' step='1' min='1' onchange='setrange(1)''></td>"+
+"<td>≒</td>"+
+"<td><input type='text' id='bpm' step='1' disabled></td></tr>"+
+"</table><p>"+
+"<b>長さ変換</b><br>音の長さの数字をMML用のモノ(○分音符)から<br>shobo用(ブロック数)のモノに置き換えます。<br>"+
+"都合のいい楽譜データしか正常に変換されません。<br>"+
+"「bar」にMML中で一番大きな数字を入れるとうまく変換されるかもしれません。<br>"+
+"<textarea id='mml' style='width:70%;height:5em;'></textarea><br>"+
+"bar<input type='number' id='bar' value='16' step='1' min='1' onchange='setrange(1)'> "+
+"<input type='button' id='translate' value='ヘンカン' style='cursor:pointer;' onclick='henkan()'/><br>"+
+"<small><br>--変換例--<br>「c8d16e16」というMMLを変換する場合<br>"+
+"「bar」に16が入力されていると、変換結果は「c2d1e1」となります。<br>--変換できない例--<br>"+
+"「c8d16e16」というMMLを変換する場合<br>"+
+"「bar」に24が入力されていると、変換結果は「c3d16e16」となります。<br>"+
+"変換の仕様は「bar ÷ ○分音符=ブロック数」です。<br>割り切れないor1未満の数字は変換されません。</small><br>"+
+"<br><b>簡易波形生成</b><br>shoboで使えそうな波形メモリ音源を作ります。<br>ループの設定がなかったり、容量の大きいwavでしか出力できないのは<br>単純に技術不足です…"+
+"<br><a href='https://forest.watch.impress.co.jp/library/software/audacity/' target='_blank'>Audacity</a>などで調整してください。"+
+"<table id='hakeiOekaki' onclick='mouseClick(this)' style='border:0px none;background-color:#505050;width:320px;height:170px;table-layout:fixed;text-align:center;color:#F0F0F0;'></table>"+
+printPreset()+" 音量<input type='number' id='audVol' min='1' step='1' onchange='setrange(1)' value='4' style='width:3em;'>"+
+" キー<input type='number' id='audKey' min='0' step='1' onchange='setrange(0)' value='48' style='width:3em;'>"+
+"<br><audio id='aud' controls src='' controlslist='nodownload'></audio><br><a id='dlaud' download='sample.wav'>波形のダウンロード</a>"+
+"</p>";
+
+disc.innerHTML=ABOUT;
+function buttons(td){//画面上部のボタン？
+    if(td.cellIndex==0){
+        disc.innerHTML=ABOUT;
+    }else if(td.cellIndex==1){
+        disc.innerHTML=HOWTO;
+    }else if(td.cellIndex==2){
+        disc.innerHTML=CMNDS;
+        commands(CMD1);
+    }else if(td.cellIndex==3){
+        disc.innerHTML=TOOLS;
+        waveTable=PRESET["Square 50%"].concat();
+        printWaveTable();
+        setrange(1);
+    }
+}
+function setrange(min){  //数値入力の形を整える
+    var e=event.target;
+    e.value=e.value<min?min:Math.floor(e.value);
+    calcBpm();
+    printWaveTable();
+}
+function calcBpm(){//BPM計算 .valueの値要変更
+    var f=Math.abs(fluc.value)<1?1:Math.abs(fluc.value);
+    var b=14400*f/nbar.value;
+    var d=wait.value;
+    if(f>1){
+        d=fluc.value>0?d*f-1:d*f+1;
+    }
+    bpm.value=Math.floor(b/d);
+}
+function tiePlus(str){//タイの表記整形
+    const notes=['^c+','^d+','^f+','^g+','^a+','^c','^d','^e','^f','^g','^a','^b','^r'];
+    for(var i=0;i<notes.length;i++){
+        str=str.replaceAll(notes[i],"^");
+    }
+    return str;
+}
+function henkan(){//○分音符とブロック数の変換と置換
+    const notes=['C','D','F','G','A','c','d','e','f','g','a','b','r','^','l'];
+    const hanon1=['c+','d+','f+','g+','a+'];
+    const hanon2=['C','D','F','G','A'];
+    var score=tiePlus(mml.value.replaceAll(">","Z>").replaceAll("<","Z<").replaceAll("\n","Z\n")+"Z");
+    var div1=division(bar.value);
+    var div2=division(bar.value).reverse();
+    var i;
+    for(i=0;i<hanon1.length;i++){
+        score=score.replaceAll(hanon1[i],hanon2[i]);
+    }
+    for(i=0;i<notes.length;i++){
+        score=score.replaceAll(notes[i],"Z"+notes[i]+"Z");
+    }
+    for(i=0;i<div1.length;i++){
+        score=score.replaceAll("Z"+div2[i]+"Z", div1[i]);
+    }
+    for(i=0;i<hanon1.length;i++){
+        score=score.replaceAll(hanon2[i],hanon1[i]);
+    }
+    mml.value=shoboNote(score.replace(/Z/g,''));
+}
+function division(num){//約数一覧取得
+    var results=[];
+    for(var i=1;i<=num;i++) {
+        if( (num%i == 0) ) {
+            results.push(i);
+        }
+    }
+    return results;
+}
+function shoboNote(str){//shoboで使えないノートの変換
+    const notes=[
+        ["c-","<b>"],["d-","c+"],["e-","d+"],["f-","e"],["g-","f+"],
+        ["a-","g+"],["b-","a+"],
+        ["e+","f"],["b+",">c<"]
+    ]
+    for(var i=0;i<notes.length;i++){
+        str=str.replaceAll(notes[i][0],notes[i][1]);
+    }
+    return str;
+}
+var array;
+function commands(sel){
+    var str="<select id='cmds' size='5' style='font-size:16px;width:100%;border:0px none;'onchange='select()'>";
+    array=sel.concat();
+    for(var i=1;i<array.length;i++){
+        str+="<option value='"+i+"'>"+array[i][0]+"</option>";
+    }
+    slct.innerHTML=str+"</select><br><br>"+array[0][0];
+}
+function select(){
+    var o=cmds.value;
+    example.value=array[o][1];
+    disc2.innerHTML=array[o][2];
+}
+
+//ここから波形生成
+const SmplRt=32000;//サンプリング周波数
+const Ch=1;//チャンネル数(モノラル,ステレオ)
+const Seconds=5;//鳴らす時間[秒]
+const BpS=8;//ビット/サンプル
+const Block=Ch*BpS/8;//ブロックサイズ
+const ByRt=SmplRt*Block;//1秒あたりの平均バイト数
+main.addEventListener('mousedown',mouseDown,false);
+main.addEventListener('mouseup',mouseUp,false);
+var waveTable,mouseButton,nowX,nowY;
+function mouseDown(){//マウス押されてるかチェック
+    mouseButton=event.button;
+}
+function mouseUp(){//マウス離されてるかチェック
+    mouseButton=-1;
+}
+function mouseMove(td){//マウスが動いたかチェック
+    nowX=td.cellIndex;
+    nowY=td.parentNode.rowIndex>15?15:parseInt(td.parentNode.rowIndex);
+    if(mouseButton == 0){
+        waveTable[nowX]=15-nowY;
+        printWaveTable();
+    }
+}
+function mouseClick(table){//クリックチェック
+    waveTable[nowX]=15-nowY;
+    printWaveTable();
+}
+function printWaveTable(){//表の表示
+    var str="";
+        for(var i=0;i<16;i++){
+            str+="<tr>";
+            for(var j=0;j<32;j++){
+                var back=waveTable[j] >= 15-i?"#F0F0F0":"initial";
+                str+="<td onmouseMove='mouseMove(this)' style='width:10px;height:10px;background-color:"+back+";'></td>";
+            }
+            str+="</td>";
+        }
+        str+="</tr><tr>";
+        for(var i=0;i<waveTable.length;i++){
+            str+="<td><small>"+waveTable[i].toString(16).toUpperCase()+"</small></td>";
+        }
+        hakeiOekaki.innerHTML=str+"</tr>";
+        gWav();
+}
+function printPreset(){//プリセット選択
+    str="プリセット <select id='presetSelect' onchange='setWave(this)' style='width:10em;'>";
+    for(var i=0;i<Object.keys(PRESET).length;i++){
+        str+="<option value="+i+">"+Object.keys(PRESET)[i]+"</option>";
+    }
+    return str+"</select>";
+}
+function setWave(select){
+    waveTable=PRESET[Object.keys(PRESET)[select.value]].concat();
+    printWaveTable();
+}
+
+
+/*参考: https://wentwayup.tamaliver.jp/e412166.html*/
+function s2b(str){//文字列を16進数化
+    var rtn="";
+    for(var i=0;i<str.length;i++){
+        rtn+=str.charCodeAt(i).toString(16);
+    }
+    return rtn.toUpperCase();
+}
+function n2b(num,bytes){//数値をリトルエンディアンで16進数化
+    var rtn=bytes>0?("0".repeat(bytes*2)+num.toString(16)).slice(bytes*-2):"0".repeat(num.toString(16).length%2)+num.toString(16);
+    return rtn.match(/.{2}/g).reverse().join("").toUpperCase();
+}
+function n2f(note){//鳴らす音を周波数に変換
+    return 440*Math.pow(2,(note-69)/12);
+}
+function cr8Wav(time){//波形生成
+    var key=audKey.value;
+    var spd=(n2f(key))/(SmplRt/waveTable.length);
+    return waveTable[parseInt((time*spd)%waveTable.length)];
+}
+function gWav(){//wav生成
+    var arrbuf=new ArrayBuffer(SmplRt*Ch*Seconds+44);
+    var uint8arr=new Uint8ClampedArray(arrbuf);
+    var head=s2b("RIFF")+n2b(SmplRt*Ch*Seconds+32,4)+s2b("WAVE");
+    head+=s2b("fmt ")+n2b(16,4)+n2b(1,2)+n2b(Ch,2)+n2b(SmplRt,4)+n2b(ByRt,4)+n2b(Block,2)+n2b(BpS,2);
+    head+=s2b("data")+n2b(SmplRt*Ch*Seconds,4);
+    var vol=audVol.value;
+    var arr=[];head.match(/.{2}/g).forEach((t,i)=>{arr[i]=parseInt(t,16);});
+    var i=0;
+    for(;i<arr.length;i++){//ヘッダをArrayBufferに入れる
+        uint8arr[i]=arr[i];
+    }
+    for(;i<uint8arr.length;i++){//波形生成
+        uint8arr[i]=cr8Wav(i-arr.length)*vol+128-16*vol/2;
+    }
+    var blob=new Blob([arrbuf]);//ArrayBufferをBlobに
+    var blobURL=window.URL.createObjectURL(blob);//BlobのURLを生成
+    aud.src=blobURL;
+    dlaud.href=blobURL;
+}
+
+//ファビコン設定
+const Favicon="data:image/png;base64,"+
+"iVBORw0KGgoAAAANSUhEUgAAAQAAAAEABAMAAACuXLVVAAAAMFBMVEUoKChQUFCgoKDw8PBBPF8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAfA3MZAAAABXRSTlP/////APu2DlMAAAE8SURBVHic7dvBjYNADAVQWtgWaGFbSP817SXegyXLA0SJid6/jcT4v6MlYHss5ueZvUk8tzp3AwAAAAAAABgLiEG/F9OBAAAAAAAAAOYBYrFYLdie6Z6LuQAAAAAAAABzAWcXkACswvOCAgAAAAAAADAHcLQ4A1YXkwgAAAAAAADAHMDZRaQCrEKiFwAAAAAAAODzgKMvKCpABaruRS8AAAAAAADA9wH+BzcQAAAAAAAAgPsDclEFAwAAAAAAALg/IA+qUt2r5gMAAAAAAADMAVQfMKwWZ8BeJM9vv6AAAAAAAAAAeBug+sHhKqA6R9o/LAAAAAAAAADeDji7mHSF+Rw9AAAAAAAAAPMAkXzhVYm5uQ8AAAAAAABgHiBSLShHkxcQAAAAAAAAgPsAKtDepCsEAAAAAAAAGAf4A1MyMDx9PwzEAAAAAElFTkSuQmCC";
+fav.type="image/png";
+fav.href=Favicon;
+</script>
+</html>
