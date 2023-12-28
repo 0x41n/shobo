@@ -65,7 +65,7 @@ a:hover{
 #btn td:hover,#btn2 td:hover{
     background-color:#D0D0D0;
 }
-input,textarea,#presetSelect{
+input,textarea,#presetSelect,#smplhz,#noisemode{
     border:0px none;
     background-color:#FFFFFF;
     width:5em;
@@ -80,7 +80,7 @@ textarea{
 </style>
 
 <script>
-const PRESET={
+var PRESET={
     "Square 50%":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15],
     "Square 25%":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,15,15,15,15,15,15,15,15],
     "Square 12.5%":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,15,15,15,15],
@@ -88,9 +88,8 @@ const PRESET={
     "Triangle":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0],
     "Sine":[9,11,12,13,14,14,15,15,15,15,14,14,13,12,11,9,7,5,3,2,1,1,0,0,0,0,1,1,2,3,5,7],
     "Frog1":[0,2,4,6,8,10,9,10,9,10,0,10,0,7,5,6,7,8,9,10,10,9,7,3,0,1,4,6,8,9,10,10],
-    "Frog2":[0,0,4,4,9,9,14,14,15,15,15,15,15,15,12,12,9,9,4,4,4,6,9,12,15,15,14,14,12,9,5,2]
+    "Frog2":[0,0,4,4,9,9,14,14,15,15,15,15,15,15,12,12,9,9,4,4,4,6,9,12,15,15,14,14,12,9,5,2],
 };
-
 const CMD1=[//定義コマンド一覧 [コマンド,例,説明]
 ["”#”で始まるコマンドです。次の”#”まで読み込まれます。",0,0],
 ["#oto",
@@ -286,12 +285,18 @@ const TOOLS="<p>"+
 "「c8d16e16」というMMLを変換する場合<br>"+
 "「bar」に24が入力されていると、変換結果は「c3d16e16」となります。<br>"+
 "変換の仕様は「bar ÷ ○分音符=ブロック数」です。<br>割り切れないor1未満の数字は変換されません。</small><br>"+
-"<br><b>簡易波形生成</b><br>shoboで使えそうな波形メモリ音源を作ります。<br>ループの設定がなかったり、容量の大きいwavでしか出力できないのは<br>単純に技術不足です…"+
-"<br><a href='https://forest.watch.impress.co.jp/library/software/audacity/' target='_blank'>Audacity</a>などで調整してください。"+
-"<table id='hakeiOekaki' onclick='mouseClick(this)' style='border:0px none;background-color:#505050;width:320px;height:170px;table-layout:fixed;text-align:center;color:#F0F0F0;'></table>"+
-printPreset()+" 音量<input type='number' id='audVol' min='1' step='1' onchange='setrange(1)' value='4' style='width:3em;'>"+
-" キー<input type='number' id='audKey' min='0' step='1' onchange='setrange(0)' value='48' style='width:3em;'>"+
-"<br><audio id='aud' controls src='' controlslist='nodownload'></audio><br><a id='dlaud' download='sample.wav'>波形のダウンロード</a>"+
+"<br><b>簡易波形生成</b><br>shoboで使えそうな波形メモリ音源を作ります。<br>「プレビュー」をクリックすると書かれている波形の音を確認できます。<br>"+
+"「波形のダウンロード」で指定された条件で作った波形がダウンロードできます。"+
+"<table style='vertical-align:top;text-align:center;'><tr>"+
+"<td><table>"+
+    `<tr><td>波形 ${printPreset()}</td></tr>`+"<tr><td>音量 <input type='number'id='audVol'min='1'step='1'onchange='setrange(1)'value='4'style='width:8em;'></td></tr>"+
+    "<tr><td>キー <input type='number'id='audKey'min='0'step='1'onchange='setrange(0)'value='48'style='width:8em;'></td></tr><tr><td>秒数 <input type='number'id='audSec'min='1'step='1'onchange='setrange(1)'value='5'style='width:8em;'></td></tr>"+
+    "<tr><td colspan='2'><select id='smplhz'style='width:100%;'><option value='8000'>8000 Hz</option><option value='11025'>11025 Hz</option value='16000'>16000 Hz<option value='22050'>22050 Hz</option><option value='32000'selected>32000 Hz</option><option value='44100'>44100 Hz</option><option value='48000'>48000 Hz</option></select></td></tr>"+
+    "<tr><td colspan='2'><select id='noisemode'style='width:100%;'><option value='0' selected>波形メモリ音源</option><option value='1'>ノイズ その1</option><option value='2'>ノイズ その2</option></select></td></tr>"+
+    "<tr><td colspan='2'><input id='testplay'type='button'value='プレビュー'style='width:100%;cursor:pointer;'onclick='playPreview()'></td></tr><tr><td colspan='2'><a id='dlaud' download='sample.wav'>波形のダウンロード</a></td></tr></table></td>"+
+"<td><table id='hakeiOekaki'onclick='mouseClick(this)'cellspacing='1'frame='box'style='border:2px solid#505050;background-color:#505050;width:320px;height:170px;table-layout:fixed;text-align:center;color:#F0F0F0;'></table>"+
+"</td></tr></table>"+
+"<br><audio id='aud'src=''preload='auto'></audio>"+
 "</p>";
 
 disc.innerHTML=ABOUT;
@@ -314,7 +319,7 @@ function setrange(min){  //数値入力の形を整える
     var e=event.target;
     e.value=e.value<min?min:Math.floor(e.value);
     calcBpm();
-    printWaveTable();
+    gWav();
 }
 function calcBpm(){//BPM計算 .valueの値要変更
     var f=Math.abs(fluc.value)<1?1:Math.abs(fluc.value);
@@ -390,12 +395,6 @@ function select(){
 }
 
 //ここから波形生成
-const SmplRt=32000;//サンプリング周波数
-const Ch=1;//チャンネル数(モノラル,ステレオ)
-const Seconds=5;//鳴らす時間[秒]
-const BpS=8;//ビット/サンプル
-const Block=Ch*BpS/8;//ブロックサイズ
-const ByRt=SmplRt*Block;//1秒あたりの平均バイト数
 main.addEventListener('mousedown',mouseDown,false);
 main.addEventListener('mouseup',mouseUp,false);
 var waveTable,mouseButton,nowX,nowY;
@@ -432,10 +431,11 @@ function printWaveTable(){//表の表示
             str+="<td><small>"+waveTable[i].toString(16).toUpperCase()+"</small></td>";
         }
         hakeiOekaki.innerHTML=str+"</tr>";
+        testplay.value='プレビュー';
         gWav();
 }
 function printPreset(){//プリセット選択
-    str="プリセット <select id='presetSelect' onchange='setWave(this)' style='width:10em;'>";
+    str="<select id='presetSelect' onchange='setWave(this)' style='width:8em;'>";
     for(var i=0;i<Object.keys(PRESET).length;i++){
         str+="<option value="+i+">"+Object.keys(PRESET)[i]+"</option>";
     }
@@ -462,30 +462,59 @@ function n2b(num,bytes){//数値をリトルエンディアンで16進数化
 function n2f(note){//鳴らす音を周波数に変換
     return 440*Math.pow(2,(note-69)/12);
 }
-function cr8Wav(time){//波形生成
-    var key=audKey.value;
-    var spd=(n2f(key))/(SmplRt/waveTable.length);
-    return waveTable[parseInt((time*spd)%waveTable.length)];
+var reg,out;
+function cr8Wav(time,hz,key,noise){//波形生成
+    var spd=(n2f(key))/(hz/waveTable.length);
+    if(noise>0){//GBノイズ
+        if(time%Math.pow(2,parseInt(11-(key%12)))!=0)return out*0xF;
+        reg%=0x10000;//たぶん最大は0xFFFFだと思う…
+        reg=reg==0?1:reg;
+        reg+=reg+(((reg>>(noise%2==0?6:14))^(reg>>(noise%2==0?5:13)))&1);
+        out^=reg&1;
+        return out*0xF;
+    }else{//波形メモリ音源
+        return waveTable[parseInt((time*spd)%waveTable.length)];
+    }
 }
 function gWav(){//wav生成
-    var arrbuf=new ArrayBuffer(SmplRt*Ch*Seconds+44);
+    reg=0xFFFF,out=1;
+    var vol=audVol.value;//音量
+    var sec=audSec.value;//鳴らす時間[秒]
+    var smplRt=parseInt(smplhz.value);//サンプリング周波数
+    var mode=parseInt(noisemode.value);//ノイズモード(0:無効,1:長周期,2:短周期)
+    var key=audKey.value;//キー
+    const Ch=1;//チャンネル数(モノラル,ステレオ)
+    const BpS=8;//ビット/サンプル
+    const Block=Ch*BpS/8;//ブロックサイズ
+    var byRt=smplRt*Block;//1秒あたりの平均バイト数
+    var arrbuf=new ArrayBuffer(smplRt*Ch*sec+44);
     var uint8arr=new Uint8ClampedArray(arrbuf);
-    var head=s2b("RIFF")+n2b(SmplRt*Ch*Seconds+32,4)+s2b("WAVE");
-    head+=s2b("fmt ")+n2b(16,4)+n2b(1,2)+n2b(Ch,2)+n2b(SmplRt,4)+n2b(ByRt,4)+n2b(Block,2)+n2b(BpS,2);
-    head+=s2b("data")+n2b(SmplRt*Ch*Seconds,4);
-    var vol=audVol.value;
+    var head=s2b("RIFF")+n2b(smplRt*Ch*sec+32,4)+s2b("WAVE");
+    head+=s2b("fmt ")+n2b(16,4)+n2b(1,2)+n2b(Ch,2)+n2b(smplRt,4)+n2b(byRt,4)+n2b(Block,2)+n2b(BpS,2);
+    head+=s2b("data")+n2b(smplRt*Ch*sec,4);
     var arr=[];head.match(/.{2}/g).forEach((t,i)=>{arr[i]=parseInt(t,16);});
     var i=0;
     for(;i<arr.length;i++){//ヘッダをArrayBufferに入れる
         uint8arr[i]=arr[i];
     }
     for(;i<uint8arr.length;i++){//波形生成
-        uint8arr[i]=cr8Wav(i-arr.length)*vol+128-16*vol/2;
+        uint8arr[i]=cr8Wav(i-arr.length,smplRt,key,mode)*vol+128-16*vol/2;
     }
     var blob=new Blob([arrbuf]);//ArrayBufferをBlobに
     var blobURL=window.URL.createObjectURL(blob);//BlobのURLを生成
     aud.src=blobURL;
     dlaud.href=blobURL;
+}
+function playPreview(){//プレビュー再生
+    gWav();
+    if(testplay.value=='プレビュー'){
+        aud.play();
+        testplay.value='ストップ';
+    }else{
+        aud.pause();
+        aud.currentTime = 0;
+        testplay.value='プレビュー';
+    }
 }
 
 //ファビコン設定
