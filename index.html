@@ -3,15 +3,15 @@
 <head>
     <meta charset="utf-8">
     <title>shobo v1.8</title>
-    <meta name="description" content="shobo">
-    <link rel="icon" id="fav" href="">
+    <meta name="description"content="shobo">
+    <link rel="icon"id="fav"href="">
 </head>
 
 <body>
     <div id="main">
         <table><tr><td><h1>shobo　</h1></td>
-        <td><p><a href="https://silversecond.com/WolfRPGEditor/" target="_blank">ウディタ</a>上でショボい音楽を演奏するヤツです。
-            <br>ぽり０６５５さんが<a href="http://senobishiten.blog.shinobi.jp/game/se%E3%82%92%E5%A5%8F%E3%81%A7%E3%82%8B/" target="_blank">ブログ</a>で紹介していたものを参考に作成しました。</p>
+        <td><p><a href="https://silversecond.com/WolfRPGEditor/"target="_blank">ウディタ</a>上でショボい音楽を演奏するヤツです。
+            <br>ぽり０６５５さんが<a href="http://senobishiten.blog.shinobi.jp/game/se%E3%82%92%E5%A5%8F%E3%81%A7%E3%82%8B/"target="_blank">ブログ</a>で紹介していたものを参考に作成しました。</p>
         </td></tr>
         </table>
         <div id="button">
@@ -21,7 +21,7 @@
         <td onclick="buttons(this)">Commands</td>
         <td onclick="buttons(this)">Tools</td>
         </tr></table></div>
-        <div id="disc" style='user-select:none;'></div>
+        <div id="disc"style='user-select:none;'></div>
     </div>
 </body>
 
@@ -245,9 +245,9 @@ const HOWTO="<p>"+
 "(楽譜の#chコマンドで指定する数の最大の数が2の時はデータ数を3にする)"+
 "<h4>音楽リストの作成</h4>ゲーム中で使う音楽を1行1ファイルでリストにするとIDで音楽を指定できるようになります。<br>下の感じで書いてください。「#shobo」と「#」で囲まれた部分を読み込みます。<br>　　　#shobo<br>　　　foo/hoge.txt<br>　　　foo/fuga.txt:song2<br>　　　#<br>リストが書かれたテキストファイルを「shobo」コモンのinitで指定してください。"+
 "<h4>各コモンの使い方</h4>それぞれｺﾓﾝｾﾙﾌ0(mode)に値を入れることで処理内容を切り替えます。<br><br>"+
-"「<b>shobo</b>」音楽の再生、停止、データの初期化などをします。<br>基本的に呼び出して使うのはこのコモンだけでいいです。<ul><li>[-1]:init<br>初期化をします。<br>ゲーム中で再生する音楽の楽譜のリストファイル名をdataに指定してください。</li><li>[0]:stop<br>演奏を停止します。</li><li>[1以上]:再生<br>dataに楽譜ファイルを指定した場合はその曲を、<br>ファイルが指定されていない(存在しない)場合は<br>modeで指定されたIDの音楽を再生します。</li></ul>"+
-"「<b>├play</b>」音楽の演奏処理をします。<br>「shobo」コモンで音楽を再生すると勝手に並列処理になります。<ul><li>[-1]:pause<br>演奏を一時停止します。<br>続きから再生するにはこのコモンをmodeに「1」を代入した状態で呼び出してください。</li><li>[0]:init<br>初期化処理です。</li><li>[1]:play<br>演奏処理です。並列で動きます。</li></ul>"+
-"「<b>├sound</b>」演奏するのに必要な計算や、テンポなどの音楽の設定をします。<br>modeの選択欄にある2つの「[]」はそれぞれ<br>num1とnum2に入力する数値の意味を表しています。<br>(空欄の時は意味のない変数)<ul><li>[-1以下]:計算系<br>各種計算です。</li><li>[0]:mute<br>num1に対象のチャンネル<br>num2にチャンネルの状態(0:ミュート 1:ミュート解除 -1:ミュート切替)を入力してください。</li><li>[1]:pitch<br>曲全体のピッチを変更します。num2にピッチの状態(1で半音上がる)を入力してください。</li><li>[2]:wait<br>テンポの設定です。「w」コマンドと同様に設定してください。</li><li>[3]:fluctuation<br>テンポの微調整です。「%」コマンドと同様に設定してください。</li><li>[4]:from<br>(とても重い)途中再生機能です<br>num1に再生する音楽のID、num2に再生を始めるブロック数を入力してください。</li><li>[6]:fade<br>音量フェードもどきです。num1に処理にかかるブロック数、num2に目標音量を入力してください。<br>num1に負の数を入れた場合、|num1|ブロック数ごとに音量を1ずつ動かします。<br>(num1に-2を入れたとき、2ブロックごとに音量が1動く)</li></ul>"+
+"「<b>shobo</b>」<br>音楽の再生、停止、データの初期化などをします。<br>基本的に呼び出して使うのはこのコモンだけでいいです。<ul><li>[-1]:init<br>初期化をします。<br>ゲーム中で再生する音楽の楽譜のリストファイル名をdataに指定してください。</li><li>[0]:stop<br>演奏を停止します。</li><li>[1以上]:再生<br>dataに楽譜ファイルを指定した場合はその曲を、<br>ファイルが指定されていない(存在しない)場合は<br>modeで指定されたIDの音楽を再生します。</li></ul>"+
+"「<b>├play</b>」<br>音楽の演奏処理をします。<br>「shobo」コモンで音楽を再生すると勝手に並列処理になります。<ul><li>[-1]:pause<br>演奏を一時停止します。<br>続きから再生するにはこのコモンをmodeに「1」を代入した状態で呼び出してください。</li><li>[0]:init<br>初期化処理です。</li><li>[1]:play<br>演奏処理です。並列で動きます。</li></ul>"+
+"「<b>├sound</b>」<br>演奏するのに必要な計算や、テンポなどの音楽の設定をします。<br>modeの選択欄にある2つの「[]」はそれぞれ<br>num1とnum2に入力する数値の意味を表しています。<br>(空欄の時は意味のない変数)<ul><li>[-1以下]:計算系<br>各種計算です。</li><li>[0]:mute<br>num1に対象のチャンネル<br>num2にチャンネルの状態(0:ミュート 1:ミュート解除 -1:ミュート切替)を入力してください。</li><li>[1]:pitch<br>曲全体のピッチを変更します。num2にピッチの状態(1で半音上がる)を入力してください。</li><li>[2]:wait<br>テンポの設定です。「w」コマンドと同様に設定してください。</li><li>[3]:fluctuation<br>テンポの微調整です。「%」コマンドと同様に設定してください。</li><li>[4]:from<br>(とても重い)途中再生機能です<br>num1に再生する音楽のID、num2に再生を始めるブロック数を入力してください。</li><li>[6]:fade<br>音量フェードもどきです。num1に処理にかかるブロック数、num2に目標音量を入力してください。<br>num1に負の数を入れた場合、|num1|ブロック数ごとに音量を1ずつ動かします。<br>(num1に-2を入れたとき、2ブロックごとに音量が1動く)</li></ul>"+
 "</p>";
 const CMNDS="<p>"+
 "<b>コマンドリスト</b><br>"+
@@ -255,31 +255,31 @@ const CMNDS="<p>"+
 "また、大文字・小文字も区別するので間違えないようにしてください。<br>"+
 "説明文中の「ブロック」は音符休符の長さの単位のことです。"+
 "<div style='display:flex;'>"+
-    "<div style='width:40%'><table id='btn2' style='width:100%;height:1em;font-size:14px;'><tr>"+
-    `<td onclick='commands(${CMD1})'>システムコマンド</td>`+
-    `<td onclick='commands(${CMD2})'>基本コマンド</td>`+
-    `<td onclick='commands(${CMD3})'>特殊コマンド</td>`+
+    "<div style='width:40%'><table id='btn2'style='width:100%;height:1em;font-size:14px;'><tr>"+
+    `<td onclick='commands(CMD1)'>システムコマンド</td>`+
+    `<td onclick='commands(CMD2)'>基本コマンド</td>`+
+    `<td onclick='commands(CMD3)'>特殊コマンド</td>`+
     "</tr></table>"+"<br><div id='slct'></div></div>"+
-    "<div style='width:60%;padding:0 30px 0'>例<br><textarea id='example' style='width:100%;height:4em;' disabled></textarea>"+
-    "<div id='disc2' style='font-size:14px;'></div></div>"
+    "<div style='width:60%;padding:0 30px 0'>例<br><textarea id='example'style='width:100%;height:4em;'disabled></textarea>"+
+    "<div id='disc2'style='font-size:14px;'></div></div>"
 "</div></p>";
 const TOOLS="<p>"+
 "<b>BPM計算</b><br>60FPSの場合のBPMをだいたいで計算します。"+
 "(30FPSの場合のBPMは半分になる)<br>"+
 "「w」「%」「bar」はぞれぞれコマンドと同じように数字を指定してください。"+
 "<table style='text-align:center;'><tr><td>w</td><td>%</td><td>bar</td><td></td><td>BPM</td></tr>"+
-"<tr><td><input type='number' id='wait'value='6' step='1' min='1' onchange='setrange(1)'></td>"+
-"<td><input type='number' id='fluc' value='0' step='1' onchange='setrange(-128)'></td>"+
-"<td><input type='number' id='nbar' value='16' step='1' min='1' onchange='setrange(1)''></td>"+
+"<tr><td><input type='number'id='wait'value='6'step='1'min='1'onchange='setrange(1)'></td>"+
+"<td><input type='number'id='fluc'value='0'step='1'onchange='setrange(-128)'></td>"+
+"<td><input type='number'id='nbar'value='16'step='1'min='1'onchange='setrange(1)''></td>"+
 "<td>≒</td>"+
-"<td><input type='text' id='bpm' step='1' disabled></td></tr>"+
+"<td><input type='text'id='bpm'step='1'disabled></td></tr>"+
 "</table><p>"+
 "<b>長さ変換</b><br>音の長さの数字をMML用のモノ(○分音符)から<br>shobo用(ブロック数)のモノに置き換えます。<br>"+
 "都合のいい楽譜データしか正常に変換されません。<br>"+
 "「bar」にMML中で一番大きな数字を入れるとうまく変換されるかもしれません。<br>"+
-"<textarea id='mml' style='width:70%;height:5em;'></textarea><br>"+
-"bar<input type='number' id='bar' value='16' step='1' min='1' onchange='setrange(1)'> "+
-"<input type='button' id='translate' value='ヘンカン' style='cursor:pointer;' onclick='henkan()'/><br>"+
+"<textarea id='mml'style='width:70%;height:5em;'></textarea><br>"+
+"bar<input type='number'id='bar'value='16'step='1'min='1'onchange='setrange(1)'> "+
+"<input type='button'id='translate'value='ヘンカン'style='cursor:pointer;'onclick='henkan()'/><br>"+
 "<small><br>--変換例--<br>「c8d16e16」というMMLを変換する場合<br>"+
 "「bar」に16が入力されていると、変換結果は「c2d1e1」となります。<br>--変換できない例--<br>"+
 "「c8d16e16」というMMLを変換する場合<br>"+
@@ -292,8 +292,8 @@ const TOOLS="<p>"+
     `<tr><td>波形 ${printPreset()}</td></tr>`+"<tr><td>音量 <input type='number'id='audVol'min='1'step='1'onchange='setrange(1)'value='4'style='width:8em;'></td></tr>"+
     "<tr><td>キー <input type='number'id='audKey'min='0'step='1'onchange='setrange(0)'value='48'style='width:8em;'></td></tr><tr><td>秒数 <input type='number'id='audSec'min='1'step='1'onchange='setrange(1)'value='5'style='width:8em;'></td></tr>"+
     "<tr><td colspan='2'><select id='smplhz'style='width:100%;'><option value='8000'>8000 Hz</option><option value='11025'>11025 Hz</option value='16000'>16000 Hz<option value='22050'>22050 Hz</option><option value='32000'selected>32000 Hz</option><option value='44100'>44100 Hz</option><option value='48000'>48000 Hz</option></select></td></tr>"+
-    "<tr><td colspan='2'><select id='noisemode'style='width:100%;'><option value='0' selected>波形メモリ音源</option><option value='1'>ノイズ その1</option><option value='2'>ノイズ その2</option></select></td></tr>"+
-    "<tr><td colspan='2'><input id='testplay'type='button'value='プレビュー'style='width:100%;cursor:pointer;'onclick='playPreview()'></td></tr><tr><td colspan='2'><a id='dlaud' download='sample.wav'>波形のダウンロード</a></td></tr></table></td>"+
+    "<tr><td colspan='2'><select id='noisemode'style='width:100%;'><option value='0'selected>波形メモリ音源</option><option value='1'>ノイズ その1</option><option value='2'>ノイズ その2</option></select></td></tr>"+
+    "<tr><td colspan='2'><input id='testplay'type='button'value='プレビュー'style='width:100%;cursor:pointer;'onclick='playPreview()'></td></tr><tr><td colspan='2'><a id='dlaud'download='sample.wav'>波形のダウンロード</a></td></tr></table></td>"+
 "<td><table id='hakeiOekaki'onclick='mouseClick(this)'cellspacing='1'frame='box'style='border:2px solid#505050;background-color:#505050;width:320px;height:170px;table-layout:fixed;text-align:center;color:#F0F0F0;'></table>"+
 "</td></tr></table>"+
 "<br><audio id='aud'src=''preload='auto'></audio>"+
@@ -381,7 +381,7 @@ function shoboNote(str){//shoboで使えないノートの変換
 }
 var array;
 function commands(sel){
-    var str="<select id='cmds' size='5' style='font-size:16px;width:100%;border:0px none;'onchange='select()'>";
+    var str="<select id='cmds'size='5'style='font-size:16px;width:100%;border:0px none;'onchange='select()'>";
     array=sel.concat();
     for(var i=1;i<array.length;i++){
         str+="<option value='"+i+"'>"+array[i][0]+"</option>";
@@ -422,7 +422,7 @@ function printWaveTable(){//表の表示
             str+="<tr>";
             for(var j=0;j<32;j++){
                 var back=waveTable[j] >= 15-i?"#F0F0F0":"initial";
-                str+="<td onmouseMove='mouseMove(this)' style='width:10px;height:10px;background-color:"+back+";'></td>";
+                str+="<td onmouseMove='mouseMove(this)'style='width:10px;height:10px;background-color:"+back+";'></td>";
             }
             str+="</td>";
         }
@@ -435,7 +435,7 @@ function printWaveTable(){//表の表示
         gWav();
 }
 function printPreset(){//プリセット選択
-    str="<select id='presetSelect' onchange='setWave(this)' style='width:8em;'>";
+    str="<select id='presetSelect'onchange='setWave(this)'style='width:8em;'>";
     for(var i=0;i<Object.keys(PRESET).length;i++){
         str+="<option value="+i+">"+Object.keys(PRESET)[i]+"</option>";
     }
